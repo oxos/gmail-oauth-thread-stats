@@ -7,10 +7,13 @@ For your local tests, launch:
 
 CONSUMER_KEY=mydomain.com CONSUMER_SECRET=mysecret ruby app.rb
 
+Last version of this code can be found at https://github.com/nfo/gmail-oauth-sinatra
+
 Contact me at http://about.me/nfo
 
 
-Original README:
+
+Original README from https://github.com/mirven/twitter-oauth-sinatra:
 
 directions using heroku for hosting:
 
