@@ -1,3 +1,17 @@
+Fork notes:
+
+I updated the "twitter-oauth-sinatra" app to make it work with Google Mail and Google Apps Mail.
+As a bonus, it gets the email address of the user, as we do on http://silentale.com. Quite useful if you want to use IMAP or SMTP with these tokens :)
+
+For your local tests, launch:
+
+CONSUMER_KEY=mydomain.com CONSUMER_SECRET=mysecret ruby app.rb
+
+Contact me at http://about.me/nfo
+
+
+Original README:
+
 directions using heroku for hosting:
 
 create twitter app at http://twitter.com/apps
