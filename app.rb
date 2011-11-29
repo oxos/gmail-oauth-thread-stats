@@ -68,14 +68,20 @@ get "/" do
       messages_count - max_emails
     end
 
-    thread_ids = Timeout::timeout(27) do
+    result_rows = Timeout::timeout(27) do
       imap.fetch( first_message..messages_count, "(X-GM-THRID)")
     end
+    thread_ids = result_rows.map {|row|
+    row.attr["X-GM-THRID"]
+    }
+
+    thread_url = "https://mail.google.com/mail/u/0/#inbox/#{thread_ids.last.to_s(16)}"
 
     <<-EOS
       <pre>
       Email: #{@email}
       Seeing #{messages_count} messages in #{mailbox}
+      Last thread link: <a href='#{thread_url}'>#{thread_url}</a>
       Processing #{messages_count-first_message} messages
       Thread IDs: #{thread_ids.length}
       </pre>
