@@ -4,6 +4,7 @@ require 'json'
 require "oauth"
 require "oauth/consumer"
 require 'haml'
+require 'gmail_xoauth'
 
 enable :sessions
 
@@ -38,7 +39,16 @@ get "/" do
     else
       STDERR.puts "could not get email: #{response.inspect}"
     end
-    haml :index
+
+    imap = Net::IMAP.new('imap.gmail.com', 993, usessl = true, certs = nil, verify = false)
+    imap.authenticate('XOAUTH', @email,
+      :consumer_key => 'anonymous',
+      :consumer_secret => 'anonymous',
+      :token => @access_token.token,
+      :token_secret => @access_token.secret
+    )
+    messages_count = imap.status('INBOX', ['MESSAGES'])['MESSAGES']
+    "Seeing #{messages_count} messages in INBOX"
   else
     '<a href="/request">Sign On</a>'
   end
