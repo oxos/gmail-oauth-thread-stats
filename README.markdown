@@ -1,5 +1,11 @@
 ## Fork notes:
 
+Turning this into a demo of accessing [Gmail Thread IDs](http://code.google.com/apis/gmail/imap/#x-gm-thrid)
+
+[Wojtek Kruszewski](http://wojt.eu)
+
+## Fork notes:
+
 I updated the "twitter-oauth-sinatra" app to make it work with Google Mail and Google Apps Mail.
 As a bonus, it gets the email address of the user, as we do on http://silentale.com. Quite useful if you want to use IMAP or SMTP with these tokens, with the  [gmail_xoauth](http://rubygems.org/gems/gmail_xoauth) for example :)
 
