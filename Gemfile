@@ -6,6 +6,6 @@ gem 'haml'
 gem 'json'
 gem 'gmail_xoauth'
 
-#group :development do
-#  gem 'ruby-debug19'
-#end
+group :development do
+  gem 'ruby-debug19'
+end
