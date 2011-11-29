@@ -1,17 +1,24 @@
 require "sinatra"
+require 'timeout'
 require 'json'
 require "oauth"
 require "oauth/consumer"
 require 'haml'
 require 'gmail_xoauth'
 
+require File.expand_path(File.dirname(__FILE__) + '/gmail_imap_extensions_compatibility')
+
 enable :sessions
+
+# # Maximum number of messages to select at once.
+# UID_BLOCK_SIZE = 1024
+
 
 before do
   session[:oauth] ||= {}  
   
-  consumer_key = ENV["CONSUMER_KEY"] || ENV["consumer_key"]
-  consumer_secret = ENV["CONSUMER_SECRET"] || ENV["consumer_secret"]
+  consumer_key = ENV["CONSUMER_KEY"] || ENV["consumer_key"] || 'anonymous'
+  consumer_secret = ENV["CONSUMER_SECRET"] || ENV["consumer_secret"] || 'anonymous'
   
   @consumer ||= OAuth::Consumer.new(consumer_key, consumer_secret,
     :site => "https://www.google.com",
@@ -40,14 +47,30 @@ get "/" do
     end
 
     imap = Net::IMAP.new('imap.gmail.com', 993, usessl = true, certs = nil, verify = false)
+    GmailImapExtensionsCompatibility.patch_net_imap_response_parser imap.instance_variable_get("@parser").singleton_class
+
     imap.authenticate('XOAUTH', @email,
       :consumer_key => 'anonymous',
       :consumer_secret => 'anonymous',
       :token => @access_token.token,
       :token_secret => @access_token.secret
     )
-    messages_count = imap.status('INBOX', ['MESSAGES'])['MESSAGES']
-    "Seeing #{messages_count} messages in INBOX"
+
+
+    mailbox = '[Gmail]/All Mail'
+    imap.select '[Gmail]/All Mail'
+    messages_count = imap.status(mailbox, ['MESSAGES'])['MESSAGES']
+
+    thread_ids = Timeout::timeout(20) {
+      imap.fetch( 1..messages_count, "(X-GM-THRID)")
+    }
+
+    <<-EOS
+      <pre>
+      Seeing #{messages_count} messages in #{mailbox}
+      Thread IDs: #{thread_ids.length}
+      </pre>
+    EOS
   else
     '<a href="/request">Sign On</a>'
   end
