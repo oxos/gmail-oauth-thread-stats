@@ -56,21 +56,34 @@ get "/" do
       :token_secret => @access_token.secret
     )
 
+    begin
 
     mailbox = '[Gmail]/All Mail'
     imap.select '[Gmail]/All Mail'
     messages_count = imap.status(mailbox, ['MESSAGES'])['MESSAGES']
+    max_emails = 1000
+    first_message = if messages_count < max_emails
+      1
+    else
+      messages_count - max_emails
+    end
 
-    thread_ids = Timeout::timeout(20) {
-      imap.fetch( 1..messages_count, "(X-GM-THRID)")
-    }
+    thread_ids = Timeout::timeout(27) do
+      imap.fetch( first_message..messages_count, "(X-GM-THRID)")
+    end
 
     <<-EOS
       <pre>
+      Email: #{@email}
       Seeing #{messages_count} messages in #{mailbox}
+      Processing #{messages_count-first_message} messages
       Thread IDs: #{thread_ids.length}
       </pre>
     EOS
+
+    rescue Timeout::Error
+      "timeout - sorry"
+    end
   else
     '<a href="/request">Sign On</a>'
   end
